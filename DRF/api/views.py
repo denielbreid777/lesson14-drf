@@ -12,6 +12,14 @@ from django.contrib.auth.models import User
 from .serializers import (CategorySerializer, UserSerializer, ProductSerializer, CommentSerializer, 
                           CartSerializer, CartItemSerializer, OrderSerializer, OrderItemSerializer, CartItemCreateSerializer)
 
+from rest_framework.pagination import PageNumberPagination
+
+
+
+class APIListPagination(PageNumberPagination):
+    page_size = 3
+    page_size_query_param = 'page_size'
+    max_page_size = 10000
 
 
 
@@ -30,6 +38,7 @@ class UserView(APIView):
 class CategoryListView(ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+
     
 class CategoryCreateView(CreateAPIView):
     queryset = Category.objects.all()
@@ -46,11 +55,13 @@ class CategoryDeleteView(DestroyAPIView):
 class ProductListView(ListAPIView): 
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    pagination_class = APIListPagination
 
 class MyProductsListView(ListAPIView): 
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated]
-
+    pagination_class = APIListPagination
+    
     def get_queryset(self):
         return Product.objects.filter(user=self.request.user)
 
@@ -120,11 +131,14 @@ class CartListView(ListAPIView):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = APIListPagination
 
 class CartItemListView(ListAPIView):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = APIListPagination
+
 
 class CartItemCreateView(CreateAPIView):
     queryset = CartItem.objects.all()
@@ -161,6 +175,7 @@ class OrderListView(ListAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = APIListPagination
 
     # def get_queryset(self):
     #     return Order.objects.filter(user=self.request.user)
@@ -198,6 +213,8 @@ class AdminProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
+    pagination_class = APIListPagination
+    
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
