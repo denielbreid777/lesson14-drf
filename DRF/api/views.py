@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView, RetrieveAPIView, ValidationError
 
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsModerated
 from .permissions import IsAuthor, IsModerated, IsCartOwner
 
 from .models import Category, Product, Comment, CartItem, Cart, Order, OrderItem
@@ -113,31 +113,31 @@ class CommentDeleteView(DestroyAPIView):
 class CommentUpdateView(UpdateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated, IsAuthor]
+    permission_classes = [IsAuthenticated, IsAuthor, IsModerated]
 
 #----------Cart Below **********************************************************
 
-class CartRetriveView(RetrieveAPIView):
+class CartRetrieveView(RetrieveAPIView):
     serializer_class = CartSerializer
     permission_classes = [IsAuthenticated]
     
     def get_object(self):
-        print("CURRENT USER:", self.request.user.username, self.request.user.id)
-        return Cart.objects.get_or_create(user=self.request.user)
+        cart, created = Cart.objects.get_or_create(user=self.request.user)
+        return cart
 
 #?????????????????????????
 
 class CartListView(ListAPIView):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     pagination_class = APIListPagination
 
-class CartItemListView(ListAPIView):
-    queryset = CartItem.objects.all()
-    serializer_class = CartItemSerializer
-    permission_classes = [IsAuthenticated]
-    pagination_class = APIListPagination
+# class CartItemListView(ListAPIView):
+#     queryset = CartItem.objects.all()
+#     serializer_class = CartItemSerializer
+#     permission_classes = [IsAuthenticated]
+#     pagination_class = APIListPagination
 
 
 class CartItemCreateView(CreateAPIView):
@@ -155,6 +155,7 @@ class CartItemCreateView(CreateAPIView):
         if item:
             item.quantity += quantity
             item.save()
+            serializer.instance = item
         else:
             serializer.save(cart=cart)
 
@@ -177,8 +178,8 @@ class OrderListView(ListAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = APIListPagination
 
-    # def get_queryset(self):
-    #     return Order.objects.filter(user=self.request.user)
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
     
 
 class OrderCreateView(CreateAPIView):

@@ -15,14 +15,20 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["username", "password", "email"]
 
     def create(self, validated_data):
-        print(validated_data)
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password']
         )
-        Cart.objects.get_or_create(user=user)
+        cart, created = Cart.objects.get_or_create(user=user)
         return user 
+    
+    def update(self, instance, validated_data):
+        user = User.objects.update(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
 
 
 class CategorySerializer(serializers.ModelSerializer):

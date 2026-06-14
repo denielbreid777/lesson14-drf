@@ -29,7 +29,7 @@ urlpatterns = [
 
     #---category Below 
     path('categories/', CategoryListView.as_view()),
-    path('categories/', CategoryCreateView.as_view()),
+    path('categories/create/', CategoryCreateView.as_view()),
     path('categories/<int:pk>/', CategoryDeleteView.as_view()),
 
     #---product Below 
@@ -37,24 +37,24 @@ urlpatterns = [
     path('products/my_products/', MyProductsListView.as_view()),
     path('products/<int:pk>', ProductRetrieveView.as_view()),
     path('products/auth/', ProductCreateView.as_view()),
-    path('products/auth/<int:pk>/', ProductUpdateView.as_view()),
-    path('products/auth/<int:pk>/', ProductDeleteView.as_view()),
+    path('products/auth/<int:pk>/update/', ProductUpdateView.as_view()),
+    path('products/auth/<int:pk>/delete/', ProductDeleteView.as_view()),
 
     #---comment Below
     # path('comments/', CommentListView.as_view()),
     path('comments/create/', CommentCreateView.as_view()),
-    path('comments/<int:pk>/', CommentUpdateView.as_view()),
-    path('comments/<int:pk>/', CommentDeleteView.as_view()),
+    path('comments/<int:pk>/update/', CommentUpdateView.as_view()),
+    path('comments/<int:pk>/delete/', CommentDeleteView.as_view()),
 
     #---cart Below 
     # path('cart/items/', CartItemListView.as_view()),
     path('cart_item/auth/', CartItemCreateView.as_view()),
-    path('cart/auth/<int:pk>/', CartItemUpdateView.as_view()),
-    path('cart/auth/<int:pk>/', CartItemDeleteView.as_view()),
+    path('cart/auth/<int:pk>/update/', CartItemUpdateView.as_view()),
+    path('cart/auth/<int:pk>/delete/', CartItemDeleteView.as_view()),
     
     #---cart Below 
     path('order/', OrderListView.as_view()),
-    path('order/', OrderCreateView.as_view()),
+    path('order/create/', OrderCreateView.as_view()),
 
     #---token Below 
     path('auth/login/', TokenObtainPairView.as_view()),
