@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView, RetrieveAPIView, ValidationError
 
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsModerated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .permissions import IsAuthor, IsModerated, IsCartOwner
 
 from .models import Category, Product, Comment, CartItem, Cart, Order, OrderItem
@@ -117,7 +117,7 @@ class CommentUpdateView(UpdateAPIView):
 
 #----------Cart Below **********************************************************
 
-class CartRetrieveView(RetrieveAPIView):
+class CartRetriveView(RetrieveAPIView):
     serializer_class = CartSerializer
     permission_classes = [IsAuthenticated]
     

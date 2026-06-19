@@ -6,7 +6,7 @@ from .views import ( UserView,
                     ProductListView, ProductCreateView, ProductUpdateView, ProductDeleteView, ProductRetrieveView,
                     MyProductsListView,
                     CommentCreateView, CommentUpdateView, CommentDeleteView, 
-                    CartRetriveView, CartItemCreateView, CartItemUpdateView, CartItemDeleteView, CartItemListView,
+                    CartRetriveView, CartItemCreateView, CartItemUpdateView, CartItemDeleteView, 
                     OrderListView, OrderCreateView,
                     AdminProductViewSet, AdminCommentViewSet, AdminUserViewSet)
 
