@@ -3,6 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView, RetrieveAPIView, ValidationError
+from rest_framework import generics
+
 
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .permissions import IsAuthor, IsModerated, IsCartOwner
@@ -35,27 +37,41 @@ class UserView(APIView):
 
 
 #----------Category Below **********************************************************
-class CategoryListView(ListAPIView):
+class CategoryListCreateView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            # permission_classes = [IsAuthenticated, IsAdminUser]
+            return [IsAuthenticated, IsAdminUser]
+        return []
+    
+
+    
+class CategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
-    
-class CategoryCreateView(CreateAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
-    
-class CategoryDeleteView(DestroyAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            return [IsAuthenticated, IsAdminUser]
+        return []
 
 
 #----------Product Below **********************************************************
-class ProductListView(ListAPIView): 
+class ProductListCreateView(generics.ListCreateAPIView): 
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     pagination_class = APIListPagination
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAuthenticated]
+        return []
+    
+    def perform_create(self, serializer):
+        serializer.save(user = self.request.user)
+
 
 class MyProductsListView(ListAPIView): 
     serializer_class = ProductSerializer
@@ -65,29 +81,17 @@ class MyProductsListView(ListAPIView):
     def get_queryset(self):
         return Product.objects.filter(user=self.request.user)
 
-class ProductRetrieveView(RetrieveAPIView): 
+
+class ProductRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView): 
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-
-
-class ProductCreateView(CreateAPIView): 
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated]
     
-    def perform_create(self, serializer):
-        serializer.save(user = self.request.user)
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            return [IsAuthenticated, IsAuthor]
+        return []
 
-class ProductDeleteView(DestroyAPIView):    
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated, IsAuthor]
 
-class ProductUpdateView(UpdateAPIView):
-    # queryset = Product.objects.all().filter(is_visible=True)
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated, IsAuthor]
 
 
 #----------Comment Below **********************************************************
@@ -97,23 +101,34 @@ class ProductUpdateView(UpdateAPIView):
 #     serializer_class = CommentSerializer
 #     # permission_classes = [IsModerated]
 
-class CommentCreateView(CreateAPIView):
+class CommentListCreateView(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
-
+    
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAuthenticated]
+        return []
+    
     def perform_create(self, serializer):
         return serializer.save(user=self.request.user)
     
+
+
 class CommentDeleteView(DestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated, IsAuthor]
     
-class CommentUpdateView(UpdateAPIView):
+class CommentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated, IsAuthor, IsModerated]
+
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            return [IsAuthenticated, IsAuthor, IsModerated]
+        return []
+
 
 #----------Cart Below **********************************************************
 
@@ -122,6 +137,7 @@ class CartRetriveView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     
     def get_object(self):
+             # 'True'
         cart, created = Cart.objects.get_or_create(user=self.request.user)
         return cart
 
